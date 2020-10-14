@@ -1,0 +1,86 @@
+version: '2.0'
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: debezium/zookeeper:1.1
+    volumes:
+      - /opt/zookeeper/data:/zookeeper/data
+      - /opt/zookeeper/txns:/zookeeper/txns
+      - /opt/zookeeper/logs:/zookeeper/logs
+      - /opt/zookeeper/conf:/zookeeper/conf
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+  kafka:
+    image: debezium/kafka:1.1
+    container_name: kafka
+    ports:
+      - 9092:9092
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+    volumes:
+      - /opt/kafka/data:/kafka/data
+      - /opt/kafka/config:/kafka/config
+      - /opt/kafka/logs:/kafka/logs
+    depends_on:
+      - zookeeper
+
+  connect:
+    image: debezium/connect:1.1
+    container_name: connect
+    ports:
+      - 8083:8083
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    volumes:
+      - /opt/kafka/connect:/kafka/connect
+    depends_on:
+      - kafka
+      - mariadb_product
+      - mariadb_order
+      - mongodb
+
+  mariadb_product:
+    image: bitnami/mariadb:latest
+    container_name: mariadb_product
+    ports:
+      - 3307:3306
+    volumes:
+      - /opt/mariadb_product/datadir:/bitnami/mariadb
+      - /opt/mariadb_product/config/custom_my.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpass
+      - MARIADB_DATABASE=product
+
+  mariadb_order:
+    image: bitnami/mariadb:latest
+    container_name: mariadb_order
+    ports:
+      - 3308:3306
+    volumes:
+      - /opt/mariadb_order/datadir:/bitnami/mariadb
+      - /opt/mariadb_order/config/custom_my.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpass
+      - MARIADB_DATABASE=order
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: mongodb
+    ports:
+      - 8017:27017
+    volumes:
+      - /opt/mongodb/persist:/bitnami/mongodb
+
+  mongodb2:
+    image: bitnami/mongodb:latest
+    container_name: mongodb2
+    ports:
+      - 8018:27017
+    volumes:
+      - /opt/mongodb2/persist:/bitnami:rw
