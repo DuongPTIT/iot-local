@@ -7,3 +7,6 @@ https://docs.confluent.io/current/kafka-mqtt/index.html
 
 Waterstream documentation
 https://waterstream.io/
+
+Mqtt python client example
+https://github.com/eclipse/paho.mqtt.python/blob/master/examples/client_pub-wait.py
