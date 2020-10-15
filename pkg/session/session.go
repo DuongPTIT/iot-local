@@ -23,20 +23,18 @@ type direction int
 
 // Session represents MQTT Proxy session between client and broker.
 type Session struct {
-	logger   logger.Logger
-	inbound  net.Conn
-	outbound net.Conn
-	handler  Handler
-	Client   Client
+	logger  logger.Logger
+	inbound net.Conn
+	handler Handler
+	Client  Client
 }
 
 // New creates a new Session.
-func New(inbound, outbound net.Conn, handler Handler, logger logger.Logger, cert x509.Certificate) *Session {
+func New(inbound net.Conn, handler Handler, logger logger.Logger, cert x509.Certificate) *Session {
 	return &Session{
-		logger:   logger,
-		inbound:  inbound,
-		outbound: outbound,
-		handler:  handler,
+		logger:  logger,
+		inbound: inbound,
+		handler: handler,
 		Client: Client{
 			Cert: cert,
 		},
@@ -49,8 +47,9 @@ func (s *Session) Stream() error {
 	// and read from broker, send to client.
 	errs := make(chan error, 2)
 
-	go s.stream(up, s.inbound, s.outbound, errs)
-	go s.stream(down, s.outbound, s.inbound, errs)
+	go s.stream(up, s.inbound, errs)
+	// TODO GET BACK FROM KAFKA
+	//go s.stream(down, s.outbound, s.inbound, errs)
 
 	// Handle whichever error happens first.
 	// The other routine won't be blocked when writing
@@ -61,7 +60,7 @@ func (s *Session) Stream() error {
 	return err
 }
 
-func (s *Session) stream(dir direction, r, w net.Conn, errs chan error) {
+func (s *Session) stream(dir direction, r net.Conn, errs chan error) {
 	for {
 		// Read from one connection
 		pkt, err := packets.ReadPacket(r)
@@ -77,11 +76,7 @@ func (s *Session) stream(dir direction, r, w net.Conn, errs chan error) {
 			}
 		}
 
-		// Send to another
-		if err := pkt.Write(w); err != nil {
-			errs <- wrap(err, dir)
-			return
-		}
+		// TODO PUSH TO KAFKA
 
 		if dir == up {
 			s.notify(pkt)

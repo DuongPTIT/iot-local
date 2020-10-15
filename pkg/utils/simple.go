@@ -51,6 +51,8 @@ func (h *Handler) Connect(c *session.Client) {
 // Publish - after client successfully published
 func (h *Handler) Publish(c *session.Client, topic *string, payload *[]byte) {
 	h.logger.Info(fmt.Sprintf("Publish() - username: %s, clientID: %s, topic: %s, payload: %s", c.Username, c.ID, *topic, string(*payload)))
+	fmt.Println("this is topic: ", *topic)
+	fmt.Println("this is payload: ", string(*payload))
 }
 
 // Subscribe - after client successfully subscribed
