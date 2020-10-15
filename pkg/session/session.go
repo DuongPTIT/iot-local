@@ -2,7 +2,10 @@ package session
 
 import (
 	"crypto/x509"
+	"github.com/segmentio/kafka-go"
+	"log"
 	"net"
+	"time"
 
 	"github.com/eclipse/paho.mqtt.golang/packets"
 	"github.com/mainflux/mainflux/logger"
@@ -25,13 +28,13 @@ type direction int
 type Session struct {
 	logger   logger.Logger
 	inbound  net.Conn
-	outbound net.Conn
+	outbound *kafka.Conn
 	handler  Handler
 	Client   Client
 }
 
 // New creates a new Session.
-func New(inbound, outbound net.Conn, handler Handler, logger logger.Logger, cert x509.Certificate) *Session {
+func New(inbound net.Conn, outbound *kafka.Conn, handler Handler, logger logger.Logger, cert x509.Certificate) *Session {
 	return &Session{
 		logger:   logger,
 		inbound:  inbound,
@@ -49,8 +52,8 @@ func (s *Session) Stream() error {
 	// and read from broker, send to client.
 	errs := make(chan error, 2)
 
-	go s.stream(up, s.inbound, s.outbound, errs)
-	go s.stream(down, s.outbound, s.inbound, errs)
+	go s.streamUp(up, s.inbound, s.outbound, errs)
+	//go s.streamUp(down, s.outbound, s.inbound, errs)
 
 	// Handle whichever error happens first.
 	// The other routine won't be blocked when writing
@@ -61,7 +64,7 @@ func (s *Session) Stream() error {
 	return err
 }
 
-func (s *Session) stream(dir direction, r, w net.Conn, errs chan error) {
+func (s *Session) streamUp(dir direction, r net.Conn, w *kafka.Conn, errs chan error) {
 	for {
 		// Read from one connection
 		pkt, err := packets.ReadPacket(r)
@@ -78,9 +81,19 @@ func (s *Session) stream(dir direction, r, w net.Conn, errs chan error) {
 		}
 
 		// Send to another
-		if err := pkt.Write(w); err != nil {
-			errs <- wrap(err, dir)
-			return
+		_, err = w.WriteMessages(
+			kafka.Message{
+				Topic:     "topic",
+				Partition: 0,
+				Offset:    1,
+				Key:       []byte(""),
+				Value:     []byte("{a:b}"),
+				Headers:   []kafka.Header{{Key: "a", Value: []byte("b")}},
+				Time:      time.Now(),
+			},
+		)
+		if err != nil {
+			log.Fatal("failed to write messages:", err)
 		}
 
 		if dir == up {

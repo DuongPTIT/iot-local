@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"iot-local/pkg/session"
 	mptls "iot-local/pkg/tls"
 	"iot-local/pkg/utils"
-	"iot-local/pkg/websocket"
 )
 
 const (
@@ -107,16 +105,10 @@ func main() {
 			errs <- err
 		}
 
-		// WSS
-		logger.Info(fmt.Sprintf("Starting encrypted WebSocket proxy on port %s ", cfg.wssPort))
-		go proxyWSS(cfg, tlsCfg, logger, h, errs)
 		// MQTTS
 		logger.Info(fmt.Sprintf("Starting MQTTS proxy on port %s ", cfg.mqttsPort))
 		go proxyMQTTS(cfg, tlsCfg, logger, h, errs)
 	} else {
-		// WS
-		logger.Info(fmt.Sprintf("Starting WebSocket proxy on port %s ", cfg.wsPort))
-		go proxyWS(cfg, logger, h, errs)
 
 		// MQTT
 		logger.Info(fmt.Sprintf("Starting MQTT proxy on port %s ", cfg.mqttPort))
@@ -173,21 +165,6 @@ func loadConfig() config {
 		// Log
 		logLevel: env(envLogLevel, defLogLevel),
 	}
-}
-
-func proxyWS(cfg config, logger mflog.Logger, handler session.Handler, errs chan error) {
-	target := fmt.Sprintf("%s:%s", cfg.wsTargetHost, cfg.wsTargetPort)
-	wp := websocket.New(target, cfg.wsTargetPath, cfg.wsTargetScheme, handler, logger)
-	http.Handle(cfg.wsPath, wp.Handler())
-
-	errs <- wp.Listen(cfg.wsPort)
-}
-
-func proxyWSS(cfg config, tlsCfg *tls.Config, logger mflog.Logger, handler session.Handler, errs chan error) {
-	target := fmt.Sprintf("%s:%s", cfg.wsTargetHost, cfg.wsTargetPort)
-	wp := websocket.New(target, cfg.wsTargetPath, cfg.wsTargetScheme, handler, logger)
-	http.Handle(cfg.wssPath, wp.Handler())
-	errs <- wp.ListenTLS(tlsCfg, cfg.serverCert, cfg.serverKey, cfg.wssPort)
 }
 
 func proxyMQTT(cfg config, logger mflog.Logger, handler session.Handler, errs chan error) {
