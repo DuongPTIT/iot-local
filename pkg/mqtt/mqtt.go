@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/mainflux/mainflux/logger"
 	"github.com/mainflux/mainflux/pkg/errors"
+	kafka "github.com/segmentio/kafka-go"
 	"iot-local/pkg/session"
 	mptls "iot-local/pkg/tls"
 )
@@ -22,7 +24,7 @@ type Proxy struct {
 	target  string
 	handler session.Handler
 	logger  logger.Logger
-	dialer  net.Dialer
+	//dialer  net.Dialer
 }
 
 // New returns a new mqtt Proxy instance.
@@ -50,7 +52,7 @@ func (p Proxy) accept(l net.Listener) {
 
 func (p Proxy) handle(inbound net.Conn) {
 	defer p.close(inbound)
-	outbound, err := p.dialer.Dial("tcp", p.target)
+	outbound, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "topic", 0)
 	if err != nil {
 		p.logger.Error("Cannot connect to remote broker " + p.target + " due to: " + err.Error())
 		return
