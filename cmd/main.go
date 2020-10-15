@@ -11,11 +11,11 @@ import (
 	"syscall"
 
 	mflog "github.com/mainflux/mainflux/logger"
-	"github.com/mainflux/mproxy/examples/simple"
-	"github.com/mainflux/mproxy/pkg/mqtt"
-	"github.com/mainflux/mproxy/pkg/session"
-	mptls "github.com/mainflux/mproxy/pkg/tls"
-	"github.com/mainflux/mproxy/pkg/websocket"
+	"iot-local/pkg/mqtt"
+	"iot-local/pkg/session"
+	mptls "iot-local/pkg/tls"
+	"iot-local/pkg/utils"
+	"iot-local/pkg/websocket"
 )
 
 const (
@@ -97,7 +97,7 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	h := simple.New(logger)
+	h := utils.New(logger)
 
 	errs := make(chan error, 3)
 

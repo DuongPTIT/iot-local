@@ -8,8 +8,8 @@ import (
 
 	"github.com/mainflux/mainflux/logger"
 	"github.com/mainflux/mainflux/pkg/errors"
-	"github.com/mainflux/mproxy/pkg/session"
-	mptls "github.com/mainflux/mproxy/pkg/tls"
+	"iot-local/pkg/session"
+	mptls "iot-local/pkg/tls"
 )
 
 var (

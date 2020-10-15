@@ -9,8 +9,8 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/mainflux/mainflux/logger"
-	"github.com/mainflux/mproxy/pkg/session"
-	mptls "github.com/mainflux/mproxy/pkg/tls"
+	"iot-local/pkg/session"
+	mptls "iot-local/pkg/tls"
 )
 
 // Proxy represents WS Proxy.
