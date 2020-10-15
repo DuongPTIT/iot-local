@@ -38,6 +38,6 @@ mqttc.connect("localhost", 1883, 60)
 mqttc.loop_start()
 
 print("class")
-infot = mqttc.publish("gggggggggg", "zzzzzzzzzzzz", qos=2)
+infot = mqttc.publish("gggggggggg", "zzzzzzzzzzzz", qos=0)
 
 infot.wait_for_publish()
