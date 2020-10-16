@@ -16,6 +16,8 @@ def on_message(mqttc, obj, msg):
 def on_publish(mqttc, obj, mid):
     print('on_publish')
 
+def on_disconnect(mqttc, obj, mid):
+    print('on_disconnect')
 
 def on_subscribe(mqttc, obj, mid, granted_qos):
     print("Subscribed: " + str(mid) + " " + str(granted_qos))
@@ -30,8 +32,9 @@ def send_data_from_bound_device():
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
     mqttc.on_publish = on_publish
+    mqttc.on_disconnect = on_disconnect
     mqttc.on_subscribe = on_subscribe
-    mqttc.connect("localhost", 1883, 60)
+    mqttc.connect("localhost", 1883, 65535)
     mqttc.loop_start()
 
     dataindata = {
