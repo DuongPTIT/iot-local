@@ -82,7 +82,6 @@ func (s *Session) streamUp(dir direction, r net.Conn, w *kafka.Conn, errs chan e
 		case *packets.PublishPacket:
 			_, err = w.WriteMessages(
 				kafka.Message{
-					Key:   []byte(p.TopicName),
 					Value: p.Payload,
 				},
 			)
