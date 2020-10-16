@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -51,7 +52,7 @@ func (p Proxy) accept(l net.Listener) {
 
 func (p Proxy) handle(inbound net.Conn) {
 	defer p.close(inbound)
-	outbound, err := kafka.Dial("tcp", "localhost:9092")
+	outbound, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "topic", 0)
 	if err != nil {
 		p.logger.Error("Cannot connect to remote broker " + p.target + " due to: " + err.Error())
 		return

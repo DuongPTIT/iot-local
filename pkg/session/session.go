@@ -2,14 +2,12 @@ package session
 
 import (
 	"crypto/x509"
-	"github.com/segmentio/kafka-go"
-	"log"
-	"net"
-	"time"
-
 	"github.com/eclipse/paho.mqtt.golang/packets"
 	"github.com/mainflux/mainflux/logger"
 	"github.com/mainflux/mainflux/pkg/errors"
+	"github.com/segmentio/kafka-go"
+	"log"
+	"net"
 )
 
 const (
@@ -80,20 +78,20 @@ func (s *Session) streamUp(dir direction, r net.Conn, w *kafka.Conn, errs chan e
 			}
 		}
 
-		// Send to another
-		_, err = w.WriteMessages(
-			kafka.Message{
-				Topic:     "topic",
-				Partition: 0,
-				Offset:    1,
-				Key:       []byte(""),
-				Value:     []byte("{a:b}"),
-				Headers:   []kafka.Header{{Key: "a", Value: []byte("b")}},
-				Time:      time.Now(),
-			},
-		)
-		if err != nil {
-			log.Fatal("failed to write messages:", err)
+		switch p := pkt.(type) {
+		case *packets.PublishPacket:
+			_, err = w.WriteMessages(
+				kafka.Message{
+					Key:   []byte(p.TopicName),
+					Value: p.Payload,
+				},
+			)
+			if err != nil {
+				log.Fatal("failed to write messages:", err)
+			}
+		default:
+			{
+			}
 		}
 
 		if dir == up {
