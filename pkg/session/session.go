@@ -2,12 +2,15 @@ package session
 
 import (
 	"crypto/x509"
+	"fmt"
 	"github.com/eclipse/paho.mqtt.golang/packets"
 	"github.com/mainflux/mainflux/logger"
 	"github.com/mainflux/mainflux/pkg/errors"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"math/rand"
 	"net"
+	"strconv"
 )
 
 const (
@@ -77,11 +80,12 @@ func (s *Session) streamUp(dir direction, r net.Conn, w *kafka.Conn, errs chan e
 				return
 			}
 		}
-
+		keyPayload := fmt.Sprintf("{'schema':{'type':'string','optional':false},'payload':'%s'}", strconv.Itoa(rand.Intn(1000000)))
 		switch p := pkt.(type) {
 		case *packets.PublishPacket:
 			_, err = w.WriteMessages(
 				kafka.Message{
+					Key:   []byte(keyPayload),
 					Value: p.Payload,
 				},
 			)
