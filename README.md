@@ -10,3 +10,8 @@ https://waterstream.io/
 
 Mqtt python client example
 https://github.com/eclipse/paho.mqtt.python/blob/master/examples/client_pub-wait.py
+
+Hướng dẫn cấu hình và sử dụng Kafka Connect:
+```console
+  docker-compose -f docker-compose up -d
+```
