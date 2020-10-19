@@ -15,7 +15,7 @@ Hướng dẫn cấu hình và sử dụng Kafka Connect:
 
 
 Chạy file docker-compose hệ thống bao gồm: Zookeeper, Kafka, Kafka Connect, MariaDB
-```properties
+```bash
 docker-compose -f docker-compose.yml up -d
 ```
 Sử dụng Postman sử dụng các API được Kafka Connect publish
