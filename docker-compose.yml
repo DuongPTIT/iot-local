@@ -41,46 +41,16 @@ services:
       - /opt/kafka/connect:/kafka/connect
     depends_on:
       - kafka
-      - mariadb_product
-      - mariadb_order
-      - mongodb
+      - mariadb
 
-  mariadb_product:
+  mariadb:
     image: bitnami/mariadb:latest
-    container_name: mariadb_product
+    container_name: mariadb
     ports:
-      - 3307:3306
+      - 3306:3306
     volumes:
-      - /opt/mariadb_product/datadir:/bitnami/mariadb
-      - /opt/mariadb_product/config/custom_my.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - /home/d/DI/mariadb/datadir:/bitnami/mariadb
+      - /home/d/DI/mariadb/config/custom_my.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
     environment:
       - MARIADB_ROOT_PASSWORD=rootpass
-      - MARIADB_DATABASE=product
-
-  mariadb_order:
-    image: bitnami/mariadb:latest
-    container_name: mariadb_order
-    ports:
-      - 3308:3306
-    volumes:
-      - /opt/mariadb_order/datadir:/bitnami/mariadb
-      - /opt/mariadb_order/config/custom_my.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
-    environment:
-      - MARIADB_ROOT_PASSWORD=rootpass
-      - MARIADB_DATABASE=order
-
-  mongodb:
-    image: bitnami/mongodb:latest
-    container_name: mongodb
-    ports:
-      - 8017:27017
-    volumes:
-      - /opt/mongodb/persist:/bitnami/mongodb
-
-  mongodb2:
-    image: bitnami/mongodb:latest
-    container_name: mongodb2
-    ports:
-      - 8018:27017
-    volumes:
-      - /opt/mongodb2/persist:/bitnami:rw
+      - MARIADB_DATABASE=iot
