@@ -21,16 +21,20 @@ docker-compose -f docker-compose.yml up -d
 Sử dụng Postman sử dụng các API được Kafka Connect publish
 
 Hiển thị list các Connector đã được đăng ký:
+```bash
 GET IP:8083/connectors/
-
+```
 Kiểm tra Trạng thái của Connector đã đăng ký (check log,…):
+```bash
 GET IP:8083/connectors/CONNECTOR_NAME/status
-
+```
 Xoá Connector:
+```bash
 DELETE IP:8083/connectors/CONNECTOR_NAME
-
+```
 
 Đăng ký Connector:
+```bash
 POST IP:8083/connectors/
 
 Body:
@@ -50,3 +54,4 @@ Body:
     "insert.mode": "insert"
   }
 }
+```
